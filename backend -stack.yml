@@ -9,25 +9,25 @@ Parameters:
     MinLength: 8
 
 Resources:
-  # 1. THE DATABASE (Free Tier Eligible)
+  # 1. THE DATABASE (Using Postgres 15.4 for maximum compatibility)
   MyPostgresDB:
     Type: AWS::RDS::DBInstance
     Properties:
       DBInstanceIdentifier: rgit-erp-db
       Engine: postgres
-      EngineVersion: "16.3"
+      EngineVersion: "15.4"
       DBInstanceClass: db.t3.micro
-      AllocatedStorage: 20 # 20GB is free tier limit
+      AllocatedStorage: 20
       MasterUsername: postgres
       MasterUserPassword: !Ref DBPassword
       DBName: rgit_erp
-      PubliclyAccessible: true # Allows Lambda & your PC to connect easily
+      PubliclyAccessible: true
       StorageType: gp2
-      BackupRetentionPeriod: 0 # Disable backups to save storage space
+      BackupRetentionPeriod: 0
       VPCSecurityGroups:
         - !Ref DBSecurityGroup
 
-  # 2. SECURITY GROUP (Allow Access)
+  # 2. SECURITY GROUP
   DBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -36,9 +36,9 @@ Resources:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          CidrIp: 0.0.0.0/0 # WARN: Wide open for MVP. Restrict IP in production.
+          CidrIp: 0.0.0.0/0
 
-  # 3. LAMBDA ROLE (Permissions)
+  # 3. LAMBDA ROLE
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -61,12 +61,12 @@ Resources:
                   - logs:PutLogEvents
                 Resource: "*"
 
-  # 4. THE BACKEND (Placeholder Function)
+  # 4. THE BACKEND
   MyBackendFunction:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: rgit-erp-api
-      Handler: dist/index.handler # This matches your build output
+      Handler: dist/index.handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: nodejs20.x
       Timeout: 15
