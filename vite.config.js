@@ -4,17 +4,24 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
-  // REPLACE 'repo-name' with your actual GitHub repository name
-  base: "/RGIT-ERP-FinApp/", 
+
+  // 1. BASE: This is required for GitHub Pages to find your CSS/JS files.
+  // It matches your repository name.
+  base: "/RGIT-ERP-FinApp/",
+
+  // 2. ROOT: This tells Vite that 'index.html' is in the main folder
+  root: ".",
+
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "client", "src"),
+      // 3. ALIAS: This tells Vite that '@' means the 'src' folder in the root
+      "@": path.resolve(__dirname, "src"),
       "@shared": path.resolve(__dirname, "shared"),
     },
   },
-  root: path.resolve("."),
+
   build: {
-    outDir: path.resolve(__dirname, "dist"),
+    outDir: "dist",
     emptyOutDir: true,
   },
 });
