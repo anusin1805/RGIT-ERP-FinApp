@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - npm install
+  build:
+    commands:
+      # This runs "tsx script/build.ts" as defined in your package.json
+      - npm run build
+
+# This section saves the built files so AWS can deploy them
+artifacts:
+  files:
+    - dist/**/*
+    - package.json
