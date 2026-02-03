@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'RGIT ERP MVP: Free Tier RDS Postgres & Lambda Backend'
+
+Parameters:
+  DBPassword:
+    Type: String
+    NoEcho: true
+    Description: "Enter a strong password for the database"
+    MinLength: 8
+
+Resources:
+  # 1. THE DATABASE (Free Tier Eligible)
+  MyPostgresDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: rgit-erp-db
+      Engine: postgres
+      EngineVersion: "16.3"
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20 # 20GB is free tier limit
+      MasterUsername: postgres
+      MasterUserPassword: !Ref DBPassword
+      DBName: rgit_erp
+      PubliclyAccessible: true # Allows Lambda & your PC to connect easily
+      StorageType: gp2
+      BackupRetentionPeriod: 0 # Disable backups to save storage space
+      VPCSecurityGroups:
+        - !Ref DBSecurityGroup
+
+  # 2. SECURITY GROUP (Allow Access)
+  DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow connection to Postgres"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 0.0.0.0/0 # WARN: Wide open for MVP. Restrict IP in production.
+
+  # 3. LAMBDA ROLE (Permissions)
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LoggingPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  # 4. THE BACKEND (Placeholder Function)
+  MyBackendFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: rgit-erp-api
+      Handler: dist/index.handler # This matches your build output
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: nodejs20.x
+      Timeout: 15
+      MemorySize: 128
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            return { statusCode: 200, body: 'Backend is Live!' };
+          };
+      Environment:
+        Variables:
+          DATABASE_URL: !Sub "postgresql://postgres:${DBPassword}@${MyPostgresDB.Endpoint.Address}:5432/rgit_erp"
+
+Outputs:
+  DatabaseEndpoint:
+    Description: "Connect to this URL in your Drizzle config"
+    Value: !GetAtt MyPostgresDB.Endpoint.Address
+  LambdaName:
+    Description: "Lambda Function Name"
+    Value: !Ref MyBackendFunction
