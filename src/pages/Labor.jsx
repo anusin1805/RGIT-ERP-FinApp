@@ -30,7 +30,7 @@ export default function Labor() {
     }
   });
 
-  const onSubmit = (data: InsertLaborRecord) => {
+  const onSubmit = (data) => {
     createMutation.mutate(data, {
       onSuccess: () => {
         setIsOpen(false);
