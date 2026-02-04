@@ -138,7 +138,7 @@ export default function Materials() {
                       <span>Min: {item.minLevel} {item.unit}</span>
                     </div>
                     <Progress 
-                      value={(item.stock / (item.minLevel! * 2)) * 100} 
+                      value={(item.stock / (item.minLevel * 2)) * 100} 
                       className={`h-2 ${item.stock < item.minLevel ? 'bg-red-100' : 'bg-slate-100'}`}
                     />
                   </div>
