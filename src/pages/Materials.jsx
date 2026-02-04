@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar } from "@/components/layout/Slidebar";
 import { Header } from "@/components/layout/Header";
 import { useMaterials, useCreateMaterial, useCreateMaterialTransaction } from "@/hooks/use-materials";
 import { Button } from "@/components/ui/button";
