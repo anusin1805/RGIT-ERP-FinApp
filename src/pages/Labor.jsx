@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertLaborRecordSchema, type InsertLaborRecord } from "@shared/schema";
+import { insertLaborRecordSchema } from "@shared/schema";
 import { Users, HardHat, Hammer, Briefcase } from "lucide-react";
 import { format } from "date-fns";
 
@@ -21,7 +21,7 @@ export default function Labor() {
   const createMutation = useCreateLaborRecord();
   const [isOpen, setIsOpen] = useState(false);
 
-  const form = useForm<InsertLaborRecord>({
+  const form = useForm({
     resolver: zodResolver(insertLaborRecordSchema),
     defaultValues: {
       date: format(new Date(), 'yyyy-MM-dd'),
