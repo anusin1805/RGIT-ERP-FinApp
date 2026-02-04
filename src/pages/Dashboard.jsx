@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar } from "@/components/layout/Slidebar";
 import { Header } from "@/components/layout/Header";
 import { StatsCard } from "@/components/ui/StatsCard";
 import { useFinancialStats } from "@/hooks/use-financial";
