@@ -21,7 +21,7 @@ export default function QC() {
   const createMutation = useCreateQcForm();
   const [isOpen, setIsOpen] = useState(false);
 
-  const form = useForm<InsertQcForm>({
+  const form = useForm({
     resolver: zodResolver(insertQcFormSchema),
     defaultValues: {
       status: "pending",
