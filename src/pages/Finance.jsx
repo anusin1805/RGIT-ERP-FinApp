@@ -37,7 +37,7 @@ export default function Finance() {
     }
   });
 
-  const onSubmit = (data: InsertFinancialRecord) => {
+  const onSubmit = (data) => {
     // Ensure amount is integer
     createMutation.mutate({ ...data, amount: parseInt(data.amount.toString()) }, {
       onSuccess: () => {
