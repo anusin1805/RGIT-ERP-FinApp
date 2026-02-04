@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertQcFormSchema, type InsertQcForm } from "@shared/schema";
+import { insertQcFormSchema} from "@shared/schema";
 import { ClipboardCheck, MapPin, Calendar, CheckCircle, XCircle, Clock } from "lucide-react";
 import { format } from "date-fns";
 
