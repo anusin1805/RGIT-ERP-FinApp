@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar } from "@/components/layout/Slidebar";
 import { Header } from "@/components/layout/Header";
 import { useQcForms, useCreateQcForm } from "@/hooks/use-project";
 import { Button } from "@/components/ui/button";
