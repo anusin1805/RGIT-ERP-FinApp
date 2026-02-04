@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useFinancialRecords, useFinancialStats, useCreateFinancialRecord } from "@/hooks/use-financial";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertFinancialRecordSchema, type InsertFinancialRecord } from "@shared/schema";
+import { insertFinancialRecordSchema } from "@shared/schema";
 import { IndianRupee, PieChart as PieIcon, TrendingUp, Plus } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 import { format } from "date-fns";
