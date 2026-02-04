@@ -14,7 +14,7 @@ import QC from "@/pages/QC";
 import Login from "@/pages/auth/Login";
 import NotFound from "@/pages/not-found";
 
-function ProtectedRoute({ component: Component, ...rest }: any) {
+function ProtectedRoute({ component: Component, ...rest }) {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
