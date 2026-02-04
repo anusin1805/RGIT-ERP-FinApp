@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertMaterialSchema, type InsertMaterial } from "@shared/schema";
+import { insertMaterialSchema} from "@shared/schema";
 import { Package, Truck, Leaf, AlertCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
