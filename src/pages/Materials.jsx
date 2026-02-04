@@ -21,7 +21,7 @@ export default function Materials() {
   const createMutation = useCreateMaterial();
   const [isOpen, setIsOpen] = useState(false);
 
-  const form = useForm<InsertMaterial>({
+  const form = useForm({
     resolver: zodResolver(insertMaterialSchema),
     defaultValues: {
       stock: 0,
