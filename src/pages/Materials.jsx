@@ -17,7 +17,7 @@ import { Package, Truck, Leaf, AlertCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 export default function Materials() {
-  const { data: materials } = useMaterials();
+  const { data} = useMaterials();
   const createMutation = useCreateMaterial();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -30,7 +30,7 @@ export default function Materials() {
     }
   });
 
-  const onSubmit = (data: InsertMaterial) => {
+  const onSubmit = (data) => {
     createMutation.mutate(data, {
       onSuccess: () => {
         setIsOpen(false);
