@@ -17,7 +17,7 @@ import { ClipboardCheck, MapPin, Calendar, CheckCircle, XCircle, Clock } from "l
 import { format } from "date-fns";
 
 export default function QC() {
-  const { data: qcForms } = useQcForms();
+  const { data } = useQcForms();
   const createMutation = useCreateQcForm();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -29,7 +29,7 @@ export default function QC() {
     }
   });
 
-  const onSubmit = (data: InsertQcForm) => {
+  const onSubmit = (data) => {
     createMutation.mutate(data, {
       onSuccess: () => {
         setIsOpen(false);
