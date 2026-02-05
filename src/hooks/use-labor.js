@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type InsertLaborRecord, type InsertLaborCompliance } from "@shared/routes";
+import { api } from "@shared/routes";
 
 export function useLaborRecords(date?: string) {
   return useQuery({
