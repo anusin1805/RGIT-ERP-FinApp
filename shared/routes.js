@@ -169,7 +169,7 @@ export const api = {
   },
 };
 
-export function buildUrl(path: string, params?: Record: string {
+export function buildUrl(path, params {
   let url = path;
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
