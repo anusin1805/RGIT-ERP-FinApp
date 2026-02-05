@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type InsertFinancialRecord } from "@shared/routes";
+import { api } from "@shared/routes";
 
 export function useFinancialRecords(type?: string) {
   return useQuery({
