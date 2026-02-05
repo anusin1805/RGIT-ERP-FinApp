@@ -34,7 +34,7 @@ export const api = {
   // === Financial ===
   financial: {
     list: {
-      method: 'GET' as const,
+      method: 'GET',
       path: '/api/financial',
       input: z.object({
         type: z.string().optional(),
@@ -44,7 +44,7 @@ export const api = {
       },
     },
     create: {
-      method: 'POST' as const,
+      method: 'POST',
       path: '/api/financial',
       input: insertFinancialRecordSchema,
       responses: {
@@ -53,7 +53,7 @@ export const api = {
       },
     },
     stats: { // For dashboard aggregation
-      method: 'GET' as const,
+      method: 'GET',
       path: '/api/financial/stats',
       responses: {
         200: z.object({
@@ -69,7 +69,7 @@ export const api = {
   // === Labor ===
   labor: {
     list: {
-      method: 'GET' as const,
+      method: 'GET',
       path: '/api/labor',
       input: z.object({ date: z.string().optional() }).optional(),
       responses: {
@@ -77,7 +77,7 @@ export const api = {
       },
     },
     create: {
-      method: 'POST' as const,
+      method: 'POST',
       path: '/api/labor',
       input: insertLaborRecordSchema,
       responses: {
@@ -86,14 +86,14 @@ export const api = {
       },
     },
     complianceList: {
-      method: 'GET' as const,
+      method: 'GET' ,
       path: '/api/labor/compliance',
       responses: {
         200: z.array(z.custom()),
       },
     },
     createCompliance: {
-      method: 'POST' as const,
+      method: 'POST' ,
       path: '/api/labor/compliance',
       input: insertLaborComplianceSchema,
       responses: {
@@ -106,14 +106,14 @@ export const api = {
   // === Materials ===
   materials: {
     list: {
-      method: 'GET' as const,
+      method: 'GET' ,
       path: '/api/materials',
       responses: {
         200: z.array(z.custom()),
       },
     },
     create: {
-      method: 'POST' as const,
+      method: 'POST' ,
       path: '/api/materials',
       input: insertMaterialSchema,
       responses: {
@@ -122,7 +122,7 @@ export const api = {
       },
     },
     transaction: {
-      method: 'POST' as const,
+      method: 'POST' ,
       path: '/api/materials/transaction',
       input: insertMaterialTransactionSchema,
       responses: {
@@ -135,14 +135,14 @@ export const api = {
   // === Project (Milestones & QC) ===
   project: {
     milestones: {
-      method: 'GET' as const,
+      method: 'GET' ,
       path: '/api/milestones',
       responses: {
         200: z.array(z.custom()),
       },
     },
     createMilestone: {
-      method: 'POST' as const,
+      method: 'POST' ,
       path: '/api/milestones',
       input: insertMilestoneSchema,
       responses: {
@@ -151,14 +151,14 @@ export const api = {
       },
     },
     qcList: {
-      method: 'GET' as const,
+      method: 'GET' ,
       path: '/api/qc',
       responses: {
         200: z.array(z.custom()),
       },
     },
     createQc: {
-      method: 'POST' as const,
+      method: 'POST' ,
       path: '/api/qc',
       input: insertQcFormSchema,
       responses: {
