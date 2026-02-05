@@ -93,28 +93,3 @@ export const insertMaterialSchema = createInsertSchema(materials).omit({ id: tru
 export const insertMaterialTransactionSchema = createInsertSchema(materialTransactions).omit({ id: true, date: true });
 export const insertMilestoneSchema = createInsertSchema(milestones).omit({ id: true });
 export const insertQcFormSchema = createInsertSchema(qcForms).omit({ id: true, date: true });
-
-// === TYPES ===
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer;
-
-export type FinancialRecord = typeof financialRecords.$inferSelect;
-export type InsertFinancialRecord = z.infer;
-
-export type LaborRecord = typeof laborRecords.$inferSelect;
-export type InsertLaborRecord = z.infer;
-
-export type LaborCompliance = typeof laborCompliance.$inferSelect;
-export type InsertLaborCompliance = z.infer;
-
-export type Material = typeof materials.$inferSelect;
-export type InsertMaterial = z.infer<typeof insertMaterialSchema>;
-
-export type MaterialTransaction = typeof materialTransactions.$inferSelect;
-export type InsertMaterialTransaction = z.infer;
-
-export type Milestone = typeof milestones.$inferSelect;
-export type InsertMilestone = z.infer;
-
-export type QcForm = typeof qcForms.$inferSelect;
-export type InsertQcForm = z.infer;
