@@ -15,7 +15,7 @@ export function useMilestones() {
 export function useCreateMilestone() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: InsertMilestone) => {
+    mutationFn: async (data) => {
       const res = await fetch(api.project.createMilestone.path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -45,7 +45,7 @@ export function useQcForms() {
 export function useCreateQcForm() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: InsertQcForm) => {
+    mutationFn: async (data) => {
       const res = await fetch(api.project.createQc.path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
