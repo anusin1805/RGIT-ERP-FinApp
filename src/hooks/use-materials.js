@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type InsertMaterial, type InsertMaterialTransaction } from "@shared/routes";
+import { api } from "@shared/routes";
 
 export function useMaterials() {
   return useQuery({
