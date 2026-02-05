@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bell } from "lucide-react";
 
-export function Header({ title }: { title: string }) {
+export function Header({ title }) {
   const { user } = useAuth();
 
   return (
