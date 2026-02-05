@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@shared/routes";
 
-export function useFinancialRecords(type?: string) {
+// ✅ FIXED: Removed "?: string"
+export function useFinancialRecords(type) {
   return useQuery({
     queryKey: [api.financial.list.path, type],
     queryFn: async () => {
@@ -30,7 +31,8 @@ export function useFinancialStats() {
 export function useCreateFinancialRecord() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: InsertFinancialRecord) => {
+    // ✅ FIXED: Removed ": InsertFinancialRecord"
+    mutationFn: async (data) => {
       const res = await fetch(api.financial.create.path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
