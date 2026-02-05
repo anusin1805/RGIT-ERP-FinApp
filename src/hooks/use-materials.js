@@ -15,7 +15,8 @@ export function useMaterials() {
 export function useCreateMaterial() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: InsertMaterial) => {
+    // ✅ FIXED: Removed ": InsertMaterial"
+    mutationFn: async (data) => {
       const res = await fetch(api.materials.create.path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,7 +35,8 @@ export function useCreateMaterial() {
 export function useCreateMaterialTransaction() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: InsertMaterialTransaction) => {
+    // ✅ FIXED: Removed ": InsertMaterialTransaction"
+    mutationFn: async (data) => {
       const res = await fetch(api.materials.transaction.path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
