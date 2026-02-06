@@ -8,14 +8,16 @@ import {
   ToastViewport,
 } from "@/components/ui/toast";
 
-export function Toaster() {
-  // 1. MUST BE PLURAL 'toasts' (The list of messages)
-  const { toasts } = useToast(); 
+export function Notifications() {
+  // CRITICAL: We use 'toasts' (plural) here
+  const { toasts } = useToast();
+
+  // Safety check: If toasts is undefined, make it an empty array to prevent crash
+  const safeToasts = toasts || [];
 
   return (
     <ToastProvider>
-      {/* 2. MUST BE PLURAL 'toasts' (Mapping over the list) */}
-      {toasts.map(function ({ id, title, description, action, ...props }) {
+      {safeToasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">
