@@ -1,50 +1,50 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@shared/routes";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
-// ✅ FIXED: Removed "?: string"
-export function useLaborRecords(date) {
+export function useLaborRecords() {
   return useQuery({
-    queryKey: [api.labor.list.path, date],
+    queryKey: ["labor"],
     queryFn: async () => {
-      const url = date 
-        ? `${api.labor.list.path}?date=${date}`
-        : api.labor.list.path;
-      
-      const res = await fetch(url, { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch labor records");
-      return api.labor.list.responses[200].parse(await res.json());
-    },
-  });
-}
-
-export function useLaborStats() {
-  return useQuery({
-    queryKey: [api.labor.stats.path],
-    queryFn: async () => {
-      const res = await fetch(api.labor.stats.path, { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch labor stats");
-      return api.labor.stats.responses[200].parse(await res.json());
+      const res = await apiRequest("GET", "/api/labor");
+      return res.json();
     },
   });
 }
 
 export function useCreateLaborRecord() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+
   return useMutation({
-    // ✅ FIXED: Removed ": InsertLaborRecord"
     mutationFn: async (data) => {
-      const res = await fetch(api.labor.create.path, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to create record");
-      return api.labor.create.responses[201].parse(await res.json());
+      const res = await apiRequest("POST", "/api/labor", data);
+      return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.labor.list.path] });
-      queryClient.invalidateQueries({ queryKey: [api.labor.stats.path] });
+      queryClient.invalidateQueries({ queryKey: ["labor"] });
+      toast({
+        title: "Success",
+        description: "Labor record created successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+export function useLaborCompliance() {
+  return useQuery({
+    queryKey: ["labor-compliance"],
+    queryFn: async () => {
+      // Assuming the endpoint is /api/labor/compliance based on the name
+      const res = await apiRequest("GET", "/api/labor/compliance");
+      return res.json();
     },
   });
 }
