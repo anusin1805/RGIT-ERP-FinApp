@@ -15,7 +15,7 @@ const allowlist = [
 
 async function buildAll() {
   // 1. Clean dist folder
-  await rm("dist", { recursive: true, force: true });
+  await rm("dist", { recursive, force});
 
   // 2. Build Frontend (React/Vite)
   console.log("building client...");
@@ -32,7 +32,7 @@ async function buildAll() {
   const externals = allDeps.filter((dep) => !allowlist.includes(dep));
 
   await esbuild({
-    entryPoints: ["server/index.ts"],
+    entryPoints: ["server/index.js"],
     platform: "node",
     bundle: true,
     format: "cjs",
