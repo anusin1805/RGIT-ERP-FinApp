@@ -2,7 +2,7 @@ import { db } from "./db";
 import { 
   users, financialRecords, laborRecords, laborCompliance, 
   materials, materialTransactions, milestones, qcForms,
-} from "@shared/schema";
+} from "../shared/schema";
 import { eq, desc } from "drizzle-orm";
 
 export class DatabaseStorage {
