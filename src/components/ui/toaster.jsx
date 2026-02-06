@@ -9,14 +9,12 @@ import {
 } from "@/components/ui/toast";
 
 export function Toaster() {
-  // --- THE FIX IS HERE ---
-  // You probably had: const { toast } = useToast();
-  // It MUST be:     const { toasts } = useToast();
+  // 1. MUST BE PLURAL 'toasts' (The list of messages)
   const { toasts } = useToast(); 
 
   return (
     <ToastProvider>
-      {/* This maps over the 'toasts' array to display them */}
+      {/* 2. MUST BE PLURAL 'toasts' (Mapping over the list) */}
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
