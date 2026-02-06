@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use((req, res, next) => {
+app.use(async(req, res, next) => {
   const start = Date.now();
   const path = req.path;
   let capturedJsonResponse = undefined;
@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  app.use((err, _req, res, _next) => {
+  app.use(async(err, _req, res, _next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
