@@ -3,28 +3,25 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Define __dirname for ES Modules (Must happen AFTER imports)
+// Define __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
-
-  // CHANGED: Set base to "/" for Render. 
-  // (The previous "/RGIT-ERP-FinApp/" would break your site on Render)
   base: "/",
-
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "client/src"), // Ensure this points to where your React components are
+      // FIX: Point "@" directly to "src", not "client/src"
+      "@": path.resolve(__dirname, "src"),
       "@shared": path.resolve(__dirname, "shared"),
     },
   },
-
-  root: "client", // Ensure this points to your client folder if that's where index.html is
-
+  // FIX: Set root to "." (current directory) instead of "client"
+  root: ".", 
   build: {
-    outDir: "../dist/public", // Output to dist/public so the server can find it
+    // FIX: Output to "dist" relative to the root
+    outDir: "dist",
     emptyOutDir: true,
   },
 });
