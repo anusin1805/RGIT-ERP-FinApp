@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
 // --- FIX 1: Import 'Notifications' from the 'Notifications' file ---
-import { Notifications } from "@/components/ui/Notifications"; 
+import { Toaster } from "@/components/ui/toaster"; 
 
 import Dashboard from "@/pages/Dashboard";
 import Finance from "@/pages/Finance";
@@ -65,8 +65,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         
-        {/* --- FIX 2: Use the <Notifications /> component here --- */}
-        <Notifications />
+        
+        <Toaster />
 
         <Router />
       </TooltipProvider>
