@@ -10,9 +10,14 @@ import {
 
 export function Notifications() {
   // --- SAFE MODE FIX ---
-  // Instead of saying "const { toasts }", we grab the whole object.
-  // This prevents the "ReferenceError" crash completely.
+  // 1. We grab the whole hook object first.
   const hookData = useToast();
+  
+  // 2. We verify if the list exists.
+  console.log("Notifications Component Loaded. Hook Data:", hookData);
+
+  // 3. We create the 'toasts' variable safely.
+  // This line prevents the "toasts is not defined" error.
   const toasts = hookData.toasts || []; 
 
   return (
