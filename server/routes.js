@@ -2,7 +2,7 @@ import { storage } from "./storage";
 import { api } from "../shared/routes";
 import { z } from "zod";
 
-export async function registerRoutes(httpServer, app) {
+export async function registerRoutes(app) {
   // === Financial Routes ===
   app.get(api.financial.list.path, async (req, res) => {
     const records = await storage.getFinancialRecords(req.query.type);
