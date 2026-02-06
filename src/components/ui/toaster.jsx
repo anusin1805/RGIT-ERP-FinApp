@@ -10,12 +10,13 @@ import {
 
 export function Toaster() {
   // --- THE FIX IS HERE ---
-  // You likely had: const { toast } = useToast();
+  // You probably had: const { toast } = useToast();
   // It MUST be:     const { toasts } = useToast();
   const { toasts } = useToast(); 
 
   return (
     <ToastProvider>
+      {/* This maps over the 'toasts' array to display them */}
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
