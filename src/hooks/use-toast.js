@@ -85,7 +85,7 @@ export const reducer = (state, action) => {
 
 const listeners = []
 
-let memoryState = { toasts: [] }
+let memoryState = { toasts }
 
 function dispatch(action) {
   memoryState = reducer(memoryState, action)
@@ -102,7 +102,7 @@ function toast({ ...props }) {
       type: "UPDATE_TOAST",
       toast: { ...props, id },
     })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId })
 
   dispatch({
     type: "ADD_TOAST",
