@@ -1,52 +1,47 @@
-// script/build.ts
+import { build } from "vite";
 import { build as esbuild } from "esbuild";
-import { build as viteBuild } from "vite";
-import { rm, readFile } from "fs/promises";
+import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
-// Dependencies to exclude from the server bundle (node_modules)
-const allowlist = [
-  "@google/generative-ai", "axios", "connect-pg-simple", "cors", "date-fns",
-  "drizzle-orm", "drizzle-zod", "express", "express-rate-limit", "express-session",
-  "jsonwebtoken", "memorystore", "multer", "nanoid", "nodemailer", "openai",
-  "passport", "passport-local", "pg", "stripe", "uuid", "ws", "xlsx", "zod",
-  "zod-validation-error",
-];
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const root = path.resolve(__dirname, "..");
 
-async function buildAll() {
-  // 1. Clean dist folder
-  await rm("dist", { recursive, force});
+async function main() {
+  // 1. Clean dist directory
+  const dist = path.join(root, "dist");
+  if (fs.existsSync(dist)) {
+    fs.rmSync(dist, { recursive: true, force: true });
+  }
 
-  // 2. Build Frontend (React/Vite)
+  // 2. Build Client (Vite)
   console.log("building client...");
-  await viteBuild();
-
-  // 3. Build Server (Node/Express)
-  console.log("building server...");
-  const pkg = JSON.parse(await readFile("package.json", "utf-8"));
-  const allDeps = [
-    ...Object.keys(pkg.dependencies || {}),
-    ...Object.keys(pkg.devDependencies || {}),
-  ];
-  // Exclude everything NOT in the allowlist
-  const externals = allDeps.filter((dep) => !allowlist.includes(dep));
-
-  await esbuild({
-    entryPoints: ["server/index.js"],
-    platform: "node",
-    bundle: true,
-    format: "cjs",
-    outfile: "dist/index.cjs",
-    define: {
-      "process.env.NODE_ENV": '"production"',
+  await build({
+    root,
+    build: {
+      outDir: "dist/public",
+      emptyOutDir: true,
     },
-    minify: true,
-    external: externals, // Don't bundle node_modules
-    logLevel: "info",
   });
+
+  // 3. Build Server (Esbuild)
+  console.log("building server...");
+  await esbuild({
+    entryPoints: [path.join(root, "server/index.js")], // Now points to .js
+    bundle: true,
+    platform: "node",
+    target: "node20",
+    outfile: path.join(root, "dist/index.js"),
+    format: "esm",
+    packages: "external", // Don't bundle node_modules
+    loader: { ".js": "jsx" },
+  });
+
+  console.log("Build complete");
 }
 
-buildAll().catch((err) => {
-  console.error(err);
+main().catch((e) => {
+  console.error(e);
   process.exit(1);
 });
