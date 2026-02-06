@@ -34,7 +34,7 @@ export async function setupVite(server, app) {
 
   app.use(vite.middlewares);
 
-  app.use((req, res, next) => {
+  app.use(async(req, res, next) => {
     const url = req.originalUrl;
 
     try {
