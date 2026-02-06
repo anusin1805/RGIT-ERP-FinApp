@@ -8,7 +8,7 @@ import { setupAuth } from "./auth"; // Replit Auth or similar
 export async function registerRoutes(
   httpServer: Server,
   app: Express
-): Promise {
+){
   // Initialize Auth (if using local auth, otherwise Replit Auth is handled differently)
   // For Replit Auth integration, usually we might not need explicit local setup if using the blueprint, 
   // but let's assume we might need to link user creation.
@@ -39,7 +39,7 @@ export async function registerRoutes(
 
   // === Labor Routes ===
   app.get(api.labor.list.path, async (req, res) => {
-    const records = await storage.getLaborRecords(req.query.date as string);
+    const records = await storage.getLaborRecords(req.query.date);
     res.json(records);
   });
 
