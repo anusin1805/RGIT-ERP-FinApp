@@ -9,14 +9,15 @@ import {
 } from "@/components/ui/toast";
 
 export function Notifications() {
-  // CRITICAL FIX: You MUST grab 'toasts' (plural) here.
-  // If your code says 'const { toast }', it will crash.
-  const { toasts } = useToast();
+  // --- SAFE MODE FIX ---
+  // Instead of saying "const { toasts }", we grab the whole object.
+  // This prevents the "ReferenceError" crash completely.
+  const hookData = useToast();
+  const toasts = hookData.toasts || []; 
 
   return (
     <ToastProvider>
-      {/* We map over the 'toasts' array. This requires the line above to be correct. */}
-      {(toasts || []).map(function ({ id, title, description, action, ...props }) {
+      {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">
