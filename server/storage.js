@@ -2,44 +2,12 @@ import { db } from "./db";
 import { 
   users, financialRecords, laborRecords, laborCompliance, 
   materials, materialTransactions, milestones, qcForms,
-  type InsertUser, type InsertFinancialRecord, type InsertLaborRecord,
-  type InsertLaborCompliance, type InsertMaterial, type InsertMaterialTransaction,
-  type InsertMilestone, type InsertQcForm
 } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 
-export interface IStorage {
-  // User
-  getUser(id: number): Promise;
-  getUserByUsername(username: string): Promise;
-  createUser(user: InsertUser): Promise;
-  
-  // Financial
-  getFinancialRecords(type?: string): Promise;
-  createFinancialRecord(record: InsertFinancialRecord): Promise;
-  getFinancialStats(): Promise;
-
-  // Labor
-  getLaborRecords(date?: string): Promise;
-  createLaborRecord(record: InsertLaborRecord): Promise;
-  getLaborCompliance(): Promise;
-  createLaborCompliance(record: InsertLaborCompliance): Promise;
-
-  // Materials
-  getMaterials(): Promise;
-  createMaterial(material: InsertMaterial): Promise;
-  createMaterialTransaction(record: InsertMaterialTransaction): Promise;
-
-  // Project
-  getMilestones(): Promise;
-  createMilestone(milestone: InsertMilestone): Promise;
-  getQcForms(): Promise;
-  createQcForm(form: InsertQcForm): Promise;
-}
-
-export class DatabaseStorage implements IStorage {
+export class DatabaseStorage {
   // === User ===
-  async getUser(id: number) {
+  async getUser(id) {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
@@ -55,14 +23,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   // === Financial ===
-  async getFinancialRecords() {
+  async getFinancialRecords(type) {
     if (type) {
       return await db.select().from(financialRecords).where(eq(financialRecords.type, type)).orderBy(desc(financialRecords.date));
     }
     return await db.select().from(financialRecords).orderBy(desc(financialRecords.date));
   }
 
-  async createFinancialRecord(record: InsertFinancialRecord) {
+  async createFinancialRecord(record) {
     const [newRecord] = await db.insert(financialRecords).values(record).returning();
     return newRecord;
   }
