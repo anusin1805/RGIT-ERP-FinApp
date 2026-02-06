@@ -53,8 +53,10 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const PORT = process.env.PORT || 5000;
+  // Use the port AWS gives you OR use 5000 if running locally
+const PORT = process.env.PORT || 5000; 
+
 server.listen(PORT, "0.0.0.0", () => {
-  log(`serving on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 })();
