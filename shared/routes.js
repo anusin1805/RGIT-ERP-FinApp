@@ -169,13 +169,11 @@ export const api = {
   },
 };
 
-export function buildUrl(path, params, Record, {
+export function buildUrl(path, params) {
   let url = path;
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
-      if (url.includes(`:${key}`)) {
-        url = url.replace(`:${key}`, String(value));
-      }
+      url = url.replace(`:${key}`, encodeURIComponent(String(value)));
     });
   }
   return url;
