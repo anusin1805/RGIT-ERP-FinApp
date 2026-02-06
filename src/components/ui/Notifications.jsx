@@ -9,15 +9,14 @@ import {
 } from "@/components/ui/toast";
 
 export function Notifications() {
-  // CRITICAL: We use 'toasts' (plural) here
+  // CRITICAL FIX: You MUST grab 'toasts' (plural) here.
+  // If your code says 'const { toast }', it will crash.
   const { toasts } = useToast();
-
-  // Safety check: If toasts is undefined, make it an empty array to prevent crash
-  const safeToasts = toasts || [];
 
   return (
     <ToastProvider>
-      {safeToasts.map(function ({ id, title, description, action, ...props }) {
+      {/* We map over the 'toasts' array. This requires the line above to be correct. */}
+      {(toasts || []).map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">
