@@ -1,3 +1,4 @@
+import { createServer } from "http"; // <--- Import moved to top
 import { storage } from "./storage";
 import { api } from "../shared/routes";
 import { z } from "zod";
@@ -124,6 +125,8 @@ export async function registerRoutes(app) {
   // === Seed Data (Initial) ===
   await seedDatabase();
 
+  // === CRITICAL FIX: Create and Return Server ===
+  const httpServer = createServer(app);
   return httpServer;
 }
 
