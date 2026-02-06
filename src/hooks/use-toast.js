@@ -139,7 +139,7 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss: (toastId) => dispatch({ "DISMISS_TOAST", toastId }),
+    dismiss: (toastId) => dispatch({ }),
   }
 }
 
