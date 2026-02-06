@@ -1,18 +1,8 @@
-import type { Express } from "express";
-import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { setupAuth } from "./auth"; // Replit Auth or similar
 
-export async function registerRoutes(
-  httpServer: Server,
-  app: Express
-){
-  // Initialize Auth (if using local auth, otherwise Replit Auth is handled differently)
-  // For Replit Auth integration, usually we might not need explicit local setup if using the blueprint, 
-  // but let's assume we might need to link user creation.
-  
+export async function registerRoutes(httpServer, app) {
   // === Financial Routes ===
   app.get(api.financial.list.path, async (req, res) => {
     const records = await storage.getFinancialRecords(req.query.type);
