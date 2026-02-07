@@ -10,11 +10,11 @@ import {
 
 export function Toaster() {
   // --- SAFE MODE FIX ---
-  // 1. Get the raw data from the hook
+  // 1. Grab the whole hook object to avoid variable name errors
   const hookData = useToast();
   
   // 2. Safely extract the 'toasts' list. 
-  // If it's missing, use an empty list [] to prevent the crash.
+  // If it is undefined, use an empty list [] so the app DOES NOT CRASH.
   const toasts = hookData.toasts || []; 
 
   return (
