@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
-// --- FIX 1: Import 'Notifications' from the 'Notifications' file ---
+// FIX 1: Import from 'toaster' (NOT Notifications)
 import { Toaster } from "@/components/ui/toaster"; 
 
 import Dashboard from "@/pages/Dashboard";
@@ -16,6 +16,7 @@ import QC from "@/pages/QC";
 import Login from "@/pages/auth/Login";
 import NotFound from "@/pages/not-found";
 
+// ... (Keep your ProtectedRoute code here) ...
 function ProtectedRoute({ component: Component, ...rest }) {
   const { user, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
@@ -40,21 +41,11 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
-      <Route path="/">
-        <ProtectedRoute component={Dashboard} />
-      </Route>
-      <Route path="/finance">
-        <ProtectedRoute component={Finance} />
-      </Route>
-      <Route path="/labor">
-        <ProtectedRoute component={Labor} />
-      </Route>
-      <Route path="/materials">
-        <ProtectedRoute component={Materials} />
-      </Route>
-      <Route path="/qc">
-        <ProtectedRoute component={QC} />
-      </Route>
+      <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
+      <Route path="/finance" component={() => <ProtectedRoute component={Finance} />} />
+      <Route path="/labor" component={() => <ProtectedRoute component={Labor} />} />
+      <Route path="/materials" component={() => <ProtectedRoute component={Materials} />} />
+      <Route path="/qc" component={() => <ProtectedRoute component={QC} />} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -65,7 +56,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         
-        
+        {/* FIX 2: Render the Toaster component */}
         <Toaster />
 
         <Router />
