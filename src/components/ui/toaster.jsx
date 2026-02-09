@@ -9,19 +9,18 @@ import {
 } from "@/components/ui/toast";
 
 export function Toaster() {
-  // 1. Grab the hook
   const hookData = useToast();
-  const toasts = hookData.toasts || [];  
-  // 2. LOGGING: This will show up in your browser console (F12)
-  console.log("Toaster Hook Data:", hookData);
+  
+  // FIX: Define 'toasts' (PLURAL) exactly once.
+  // This holds the list of notifications.
+  const toasts = hookData.toasts || []; 
 
-  // 3. SAFETY: Check if 'toasts' exists, otherwise use empty list []
-  // This line is what prevents the "ReferenceError"
-  const toast = hookData?.toasts || []; 
+  console.log("Toaster Hook Data:", hookData);
 
   return (
     <ToastProvider>
-      {toast.map(function ({ id, title, description, action, ...props }) {
+      {/* FIX: Map over 'toasts' (PLURAL) */}
+      {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">
