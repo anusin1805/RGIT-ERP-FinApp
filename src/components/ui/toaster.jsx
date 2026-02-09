@@ -17,7 +17,7 @@ export function Toaster() {
 
   // 3. SAFETY: Check if 'toasts' exists, otherwise use empty list []
   // This line is what prevents the "ReferenceError"
-  const toasts = hookData?.toasts || []; 
+  const toast = hookData?.toast || []; 
 
   return (
     <ToastProvider>
