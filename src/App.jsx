@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
 // FIX 1: Import from 'toaster' (NOT Notifications)
-import { Toaster } from "@/components/ui/toaster"; 
+import { Toaster } from "@/components/ui/AppToaster"; 
 
 import Dashboard from "@/pages/Dashboard";
 import Finance from "@/pages/Finance";
