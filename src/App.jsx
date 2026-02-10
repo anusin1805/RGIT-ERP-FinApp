@@ -1,11 +1,10 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
-// FIX 1: Import from 'toaster' (NOT Notifications)
 import { Toaster } from "@/components/ui/AppToaster"; 
 
 import Dashboard from "@/pages/Dashboard";
@@ -16,10 +15,8 @@ import QC from "@/pages/QC";
 import Login from "@/pages/auth/Login";
 import NotFound from "@/pages/not-found";
 
-// ... (Keep your ProtectedRoute code here) ...
 function ProtectedRoute({ component: Component, ...rest }) {
   const { user, isLoading } = useAuth();
-  const [location, setLocation] = useLocation();
 
   if (isLoading) {
     return (
@@ -30,8 +27,7 @@ function ProtectedRoute({ component: Component, ...rest }) {
   }
 
   if (!user) {
-    setLocation("/login");
-    return null;
+    return <Redirect to="/login" />;
   }
 
   return <Component {...rest} />;
