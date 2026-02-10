@@ -33,7 +33,7 @@ export const reducer = (state, action) => {
     case "ADD_TOAST":
       return {
         ...state,
-        toasts: state.toasts.slice(),
+        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
       }
 
     case "UPDATE_TOAST":
@@ -85,7 +85,7 @@ export const reducer = (state, action) => {
 
 const listeners = []
 
-let memoryState = { toasts : toasts }
+let memoryState = { toasts: [] }
 
 function dispatch(action) {
   memoryState = reducer(memoryState, action)
@@ -102,7 +102,7 @@ function toast({ ...props }) {
       type: "UPDATE_TOAST",
       toast: { ...props, id },
     })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId })
+  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
 
   dispatch({
     type: "ADD_TOAST",
@@ -139,7 +139,7 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss: (toastId) => dispatch({ }),
+    dismiss: (toastId) => dispatch({ type: "DISMISS_TOAST", toastId }),
   }
 }
 
