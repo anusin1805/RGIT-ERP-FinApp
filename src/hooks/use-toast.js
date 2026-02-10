@@ -85,7 +85,7 @@ export const reducer = (state, action) => {
 
 const listeners = []
 
-let memoryState = { toasts : []}
+let memoryState = { toasts : [] }
 
 function dispatch(action) {
   memoryState = reducer(memoryState, action)
