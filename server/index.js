@@ -1,12 +1,17 @@
 import express from "express";
+import { setupAuth } from "./Auth";
+import { api } from "../shared/routes";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+
+// 1. Basic Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(async(req, res, next) => {
+// 2. Logging Middleware (Place this EARLY to capture all requests)
+app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
   let capturedJsonResponse = undefined;
@@ -37,26 +42,32 @@ app.use(async(req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  // 3. SETUP AUTH (Inside the async block)
+  // Registers /api/login, /api/callback, /api/logout
+  await setupAuth(app);
 
-  app.use(async(err, _req, res, _next) => {
+  // 4. Register API Routes
+  app.use("/api", api); // Shared routes
+  const server = await registerRoutes(app); // Server-specific routes
+
+  // 5. Error Handling
+  app.use((err, _req, res, _next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
     throw err;
   });
 
+  // 6. Setup Vite (Development) or Static Files (Production)
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // Use the port AWS gives you OR use 5000 if running locally
-const PORT = process.env.PORT || 5000; 
-
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  // 7. Start Server
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, "0.0.0.0", () => {
+    log(`Server running on port ${PORT}`);
+  });
 })();
