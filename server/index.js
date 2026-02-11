@@ -1,6 +1,6 @@
 import express from "express";
 import { setupAuth } from "./Auth";
-import { api } from "../shared/routes";
+
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -47,7 +47,7 @@ app.use((req, res, next) => {
   await setupAuth(app);
 
   // 4. Register API Routes
-  app.use("/api", api); // Shared routes
+  
   const server = await registerRoutes(app); // Server-specific routes
 
   // 5. Error Handling
