@@ -15,7 +15,7 @@ export default function Login() {
   }, [user, setLocation]);
 
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    window.location.href = "/api/auth/google";
   };
 
   if (isLoading) return null;
@@ -46,7 +46,7 @@ export default function Login() {
             onClick={handleLogin}
             className="w-full h-12 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
           >
-            Login with Replit
+            Login with gmail
           </Button>
           
           <p className="text-xs text-center text-slate-400 mt-6">
