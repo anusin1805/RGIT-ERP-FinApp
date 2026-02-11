@@ -46,7 +46,7 @@ export function getSession() {
 function updateUserSession(user, tokens) {
   user.claims = tokens.claims();
   user.access_token = tokens.access_token;
-  user.refresh_token = tokens.refresh_token;
+  // FIXED: Removed refresh_token logic to prevent crashes
   user.expires_at = user.claims?.exp;
 }
 
@@ -86,8 +86,7 @@ export async function setupAuth(app) {
           client_id: process.env.GOOGLE_CLIENT_ID,
           name: strategyName,
           config,
-          // FIXED: Removed 'offline_access'
-          scope: "openid email profile", 
+          scope: "openid email profile", // Clean scope
           callbackURL: `https://${domain}/api/callback`,
         },
         verify
@@ -105,7 +104,6 @@ export async function setupAuth(app) {
     ensureStrategy(req.hostname);
     passport.authenticate(`googleauth:${req.hostname}`, {
       prompt: "login consent",
-      // FIXED: Removed 'offline_access' here too
       scope: ["openid", "email", "profile"], 
     })(req, res, next);
   });
@@ -119,15 +117,16 @@ export async function setupAuth(app) {
   });
 
   app.get("/api/logout", (req, res) => {
-    req.logout(() => {
+    req.logout((err) => {
+      if (err) { return next(err); }
       res.redirect("/");
     });
   });
 }
 
-export const isAuthenticated = async (req, res, next) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ message: "Unauthorized" });
+export const isAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
   }
-  next();
+  res.status(401).json({ message: "Unauthorized" });
 };
