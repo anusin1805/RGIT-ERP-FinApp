@@ -29,7 +29,7 @@ export function getSession() {
     tableName: "sessions",
   });
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: process.env.SESSION_SECRET,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
@@ -42,8 +42,8 @@ export function getSession() {
 }
 
 function updateUserSession(
-  user: any,
-  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
+  user,
+  tokens
 ) {
   user.claims = tokens.claims();
   user.access_token = tokens.access_token;
