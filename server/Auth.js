@@ -97,8 +97,8 @@ export async function setupAuth(app) {
     }
   };
 
-  passport.serializeUser((user) => cb());
-  passport.deserializeUser((user) => cb());
+  passport.serializeUser((user, cb) => cb(null, user));
+  passport.deserializeUser((user, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
     ensureStrategy(req.hostname);
