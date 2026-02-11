@@ -3,7 +3,7 @@ import { Strategy } from "openid-client/passport";
 
 import passport from "passport";
 import session from "express-session";
-import type { Express, RequestHandler } from "express";
+import Express  from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { authStorage } from "./storage";
@@ -100,8 +100,8 @@ export async function setupAuth(app) {
     }
   };
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+  passport.serializeUser((user) => cb());
+  passport.deserializeUser((user) => cb());
 
   app.get("/api/login", (req, res, next) => {
     ensureStrategy(req.hostname);
@@ -131,7 +131,7 @@ export async function setupAuth(app) {
   });
 }
 
-export const isAuthenticated: RequestHandler = async (req, res, next) => {
+export const isAuthenticated = async (req, res, next) => {
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {
