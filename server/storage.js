@@ -7,13 +7,13 @@ import {
 import { eq, desc } from "drizzle-orm"; 
 import { users } from "../shared/models/auth"; 
 
-// DELETED: export interface IAuthStorage { ... } (Not valid in JS)
+// --- DELETED THE INTERFACE BLOCK HERE ---
 
 class AuthStorage {
-  // DELETED: implements IAuthStorage (Not valid in JS)
+  // --- DELETED 'implements IAuthStorage' HERE ---
   
   async getUser(id) {
-    // FIXED: Added 'id' as the second argument to eq()
+    // FIXED: Added 'id' to the query
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
@@ -44,7 +44,8 @@ export class DatabaseStorage {
   }
 
   async getUserByUsername(username) {
-    const [user] = await db.select().from(users).where(eq(users.email, username));
+    // Changed to 'email' since you are using Google Auth
+    const [user] = await db.select().from(users).where(eq(users.email, username)); 
     return user;
   }
 
@@ -75,7 +76,6 @@ export class DatabaseStorage {
     const interestAccrued = 0; 
 
     records.forEach(r => {
-      // Ensure we treat amounts as numbers
       const amount = Number(r.amount);
       if (r.type === 'advance') totalAdvance += amount;
       if (r.type === 'recovery') totalRecovered += amount;
