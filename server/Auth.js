@@ -46,7 +46,7 @@ export function getSession() {
 function updateUserSession(user, tokens) {
   user.claims = tokens.claims();
   user.access_token = tokens.access_token;
-  // FIXED: Removed refresh_token logic to prevent crashes
+  // FIXED: Removed refresh_token logic completely
   user.expires_at = user.claims?.exp;
 }
 
@@ -86,7 +86,8 @@ export async function setupAuth(app) {
           client_id: process.env.GOOGLE_CLIENT_ID,
           name: strategyName,
           config,
-          scope: "openid email profile", // Clean scope
+          // FIXED: Use only standard scopes
+          scope: "openid email profile", 
           callbackURL: `https://${domain}/api/callback`,
         },
         verify
@@ -116,7 +117,7 @@ export async function setupAuth(app) {
     })(req, res, next);
   });
 
-  app.get("/api/logout", (req, res) => {
+  app.get("/api/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) { return next(err); }
       res.redirect("/");
