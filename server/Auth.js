@@ -69,10 +69,7 @@ export async function setupAuth(app) {
 
   const config = await getOidcConfig();
 
-  const verify = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
-    verified: passport.AuthenticateCallback
-  ) => {
+  const verify = async (tokens, verified) => {
     const user = {};
     updateUserSession(user, tokens);
     await upsertUser(tokens.claims());
