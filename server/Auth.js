@@ -6,8 +6,7 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { authStorage } from "./storage";
 
-// ... (Your imports and getSession function remain the same) ...
-
+// 1. Google OIDC Configuration
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
@@ -19,10 +18,53 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
-// ... (Your helper functions like updateUserSession remain the same) ...
+// 2. Session Setup (THIS WAS MISSING)
+export function getSession() {
+  const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
+  const pgStore = connectPg(session);
+  const sessionStore = new pgStore({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true, // Auto-create session table
+    ttl: sessionTtl,
+    tableName: "sessions",
+  });
 
+  return session({
+    secret: process.env.SESSION_SECRET || "default-dev-secret",
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Secure in production
+      maxAge: sessionTtl,
+    },
+  });
+}
+
+// 3. Helper Functions
+function updateUserSession(user, tokens) {
+  user.claims = tokens.claims();
+  user.access_token = tokens.access_token;
+  user.refresh_token = tokens.refresh_token;
+  user.expires_at = user.claims?.exp;
+}
+
+async function upsertUser(claims) {
+  await authStorage.upsertUser({
+    id: claims["sub"],
+    email: claims["email"],
+    firstName: claims["given_name"],
+    lastName: claims["family_name"],
+    profileImageUrl: claims["picture"],
+  });
+}
+
+// 4. Main Setup Function
 export async function setupAuth(app) {
   app.set("trust proxy", 1);
+  
+  // Initialize Session
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
@@ -36,17 +78,17 @@ export async function setupAuth(app) {
     verified(null, user);
   };
 
+  // Helper to ensure unique strategy names
   const registeredStrategies = new Set();
-
   const ensureStrategy = (domain) => {
     const strategyName = `googleauth:${domain}`;
     if (!registeredStrategies.has(strategyName)) {
       const strategy = new Strategy(
         {
+          client_id: process.env.GOOGLE_CLIENT_ID, // Explicitly pass ID here
           name: strategyName,
           config,
-          // FIX 1: Remove "offline_access" from this string
-          scope: "openid email profile", 
+          scope: "openid email profile offline_access",
           callbackURL: `https://${domain}/api/callback`,
         },
         verify
@@ -59,14 +101,12 @@ export async function setupAuth(app) {
   passport.serializeUser((user, cb) => cb(null, user));
   passport.deserializeUser((user, cb) => cb(null, user));
 
+  // --- Routes ---
   app.get("/api/login", (req, res, next) => {
     ensureStrategy(req.hostname);
     passport.authenticate(`googleauth:${req.hostname}`, {
-      // FIX 2: Remove "offline_access" from this list
-      scope: ["openid", "email", "profile"], 
-      // FIX 3: Add these two lines to correctly ask for the Refresh Token
-      accessType: "offline", 
-      prompt: "consent",     
+      prompt: "login consent",
+      scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
@@ -79,9 +119,16 @@ export async function setupAuth(app) {
   });
 
   app.get("/api/logout", (req, res) => {
-    req.logout((err) => {
-      if (err) return next(err);
+    req.logout(() => {
       res.redirect("/");
     });
   });
 }
+
+// 5. Middleware to Protect Routes
+export const isAuthenticated = async (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  next();
+};
