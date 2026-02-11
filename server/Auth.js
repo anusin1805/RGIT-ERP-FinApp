@@ -1,5 +1,5 @@
 import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
+import { Strategy } from "openid-client/passport";
 
 import passport from "passport";
 import session from "express-session";
@@ -51,7 +51,7 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
-async function upsertUser(claims: any) {
+async function upsertUser(claims) {
   await authStorage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
@@ -61,7 +61,7 @@ async function upsertUser(claims: any) {
   });
 }
 
-export async function setupAuth(app: Express) {
+export async function setupAuth(app) {
   app.set("trust proxy", 1);
   app.use(getSession());
   app.use(passport.initialize());
@@ -69,7 +69,7 @@ export async function setupAuth(app: Express) {
 
   const config = await getOidcConfig();
 
-  const verify: VerifyFunction = async (
+  const verify = async (
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
@@ -80,10 +80,10 @@ export async function setupAuth(app: Express) {
   };
 
   // Keep track of registered strategies
-  const registeredStrategies = new Set<string>();
+  const registeredStrategies = new Set();
 
   // Helper function to ensure strategy exists for a domain
-  const ensureStrategy = (domain: string) => {
+  const ensureStrategy = (domain) => {
     const strategyName = `googleauth:${domain}`;
     if (!registeredStrategies.has(strategyName)) {
       const strategy = new Strategy(
