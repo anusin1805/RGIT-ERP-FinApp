@@ -3,7 +3,6 @@ import { Strategy } from "openid-client/passport";
 import passport from "passport";
 import session from "express-session";
 import memoize from "memoizee";
-import connectPg from "connect-pg-simple";
 import { authStorage } from "./storage";
 
 // 1. Google OIDC Configuration
@@ -18,20 +17,12 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
-// 2. Session Setup
+// 2. Session Setup (SAFE MODE: Uses MemoryStore)
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: true,
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
-
+  
   return session({
     secret: process.env.SESSION_SECRET || "default-dev-secret",
-    store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -46,7 +37,6 @@ export function getSession() {
 function updateUserSession(user, tokens) {
   user.claims = tokens.claims();
   user.access_token = tokens.access_token;
-  // FIXED: Removed refresh_token logic completely
   user.expires_at = user.claims?.exp;
 }
 
@@ -86,7 +76,6 @@ export async function setupAuth(app) {
           client_id: process.env.GOOGLE_CLIENT_ID,
           name: strategyName,
           config,
-          // FIXED: Use only standard scopes
           scope: "openid email profile", 
           callbackURL: `https://${domain}/api/callback`,
         },
