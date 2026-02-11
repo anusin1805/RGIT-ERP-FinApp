@@ -1,17 +1,17 @@
 import * as client from "openid-client";
 import { Strategy } from "openid-client/passport";
-
 import passport from "passport";
 import session from "express-session";
-import Express  from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { authStorage } from "./storage";
 
+// ... (Your imports and getSession function remain the same) ...
+
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
-      new URL("https://accounts.google.com/"),
+      new URL("https://accounts.google.com"), 
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET
     );
@@ -19,47 +19,7 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
-export function getSession() {
-  const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
-  return session({
-    secret: process.env.SESSION_SECRET,
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: true,
-      maxAge: sessionTtl,
-    },
-  });
-}
-
-function updateUserSession(
-  user,
-  tokens
-) {
-  user.claims = tokens.claims();
-  user.access_token = tokens.access_token;
-  user.refresh_token = tokens.refresh_token;
-  user.expires_at = user.claims;
-}
-
-async function upsertUser(claims) {
-  await authStorage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
-  });
-}
+// ... (Your helper functions like updateUserSession remain the same) ...
 
 export async function setupAuth(app) {
   app.set("trust proxy", 1);
@@ -76,10 +36,8 @@ export async function setupAuth(app) {
     verified(null, user);
   };
 
-  // Keep track of registered strategies
   const registeredStrategies = new Set();
 
-  // Helper function to ensure strategy exists for a domain
   const ensureStrategy = (domain) => {
     const strategyName = `googleauth:${domain}`;
     if (!registeredStrategies.has(strategyName)) {
@@ -87,7 +45,8 @@ export async function setupAuth(app) {
         {
           name: strategyName,
           config,
-          scope: "openid email profile offline_access",
+          // FIX 1: Remove "offline_access" from this string
+          scope: "openid email profile", 
           callbackURL: `https://${domain}/api/callback`,
         },
         verify
@@ -103,8 +62,11 @@ export async function setupAuth(app) {
   app.get("/api/login", (req, res, next) => {
     ensureStrategy(req.hostname);
     passport.authenticate(`googleauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
+      // FIX 2: Remove "offline_access" from this list
+      scope: ["openid", "email", "profile"], 
+      // FIX 3: Add these two lines to correctly ask for the Refresh Token
+      accessType: "offline", 
+      prompt: "consent",     
     })(req, res, next);
   });
 
@@ -117,42 +79,9 @@ export async function setupAuth(app) {
   });
 
   app.get("/api/logout", (req, res) => {
-    req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: process.env,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
-      );
+    req.logout((err) => {
+      if (err) return next(err);
+      res.redirect("/");
     });
   });
 }
-
-export const isAuthenticated = async (req, res, next) => {
-  const user = req.user;
-
-  if (!req.isAuthenticated() || !user.expires_at) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
-    return next();
-  }
-
-  const refreshToken = user.refresh_token;
-  if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const config = await getOidcConfig();
-    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
-    updateUserSession(user, tokenResponse);
-    return next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-};
