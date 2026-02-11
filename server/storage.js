@@ -1,9 +1,41 @@
 import { db } from "./db";
 import { 
-  users, financialRecords, laborRecords, laborCompliance, 
+  financialRecords, laborRecords, laborCompliance, 
   materials, materialTransactions, milestones, qcForms,
 } from "../shared/schema";
-import { eq, desc } from "drizzle-orm";
+// FIXED: Added 'desc' to imports
+import { eq, desc } from "drizzle-orm"; 
+import { users } from "../shared/models/auth"; // Adjusted import path to be safe
+
+export interface IAuthStorage {
+  getUser(id: string): Promise<any>;
+  upsertUser(user: any): Promise<any>;
+}
+
+class AuthStorage implements IAuthStorage {
+  async getUser(id) {
+    // FIXED: Added 'id' as the second argument to eq()
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData) {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+}
+
+export const authStorage = new AuthStorage();
 
 export class DatabaseStorage {
   // === User ===
@@ -13,7 +45,7 @@ export class DatabaseStorage {
   }
 
   async getUserByUsername(username) {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+    const [user] = await db.select().from(users).where(eq(users.email, username)); // changed to email since you use Google Auth
     return user;
   }
 
@@ -38,17 +70,17 @@ export class DatabaseStorage {
   async getFinancialStats() {
     const records = await db.select().from(financialRecords);
     
-    // Simple in-memory aggregation for now (can be optimized with SQL aggregations later)
     let totalAdvance = 0;
     let totalRecovered = 0;
     let bgExposure = 0;
-    // Interest calculation would be dynamic based on dates, simplified here as stored or calculated
     const interestAccrued = 0; 
 
     records.forEach(r => {
-      if (r.type === 'advance') totalAdvance += r.amount;
-      if (r.type === 'recovery') totalRecovered += r.amount;
-      if (r.type === 'bg' && r.status === 'active') bgExposure += r.amount;
+      // Ensure we treat amounts as numbers
+      const amount = Number(r.amount);
+      if (r.type === 'advance') totalAdvance += amount;
+      if (r.type === 'recovery') totalRecovered += amount;
+      if (r.type === 'bg' && r.status === 'active') bgExposure += amount;
     });
 
     return { totalAdvance, totalRecovered, interestAccrued, bgExposure };
@@ -56,7 +88,6 @@ export class DatabaseStorage {
 
   // === Labor ===
   async getLaborRecords(date) {
-    // If date filtering is needed, add where clause. For now return all sorted by date.
     return await db.select().from(laborRecords).orderBy(desc(laborRecords.date));
   }
 
@@ -85,15 +116,17 @@ export class DatabaseStorage {
   }
 
   async createMaterialTransaction(record) {
-    // Transaction creates record AND updates stock
     return await db.transaction(async (tx) => {
       const [newTransaction] = await tx.insert(materialTransactions).values(record).returning();
       
       const [material] = await tx.select().from(materials).where(eq(materials.id, record.materialId));
       if (material) {
+        const quantity = Number(record.quantity);
+        const currentStock = Number(material.stock);
+        
         const newStock = record.type === 'in' 
-          ? material.stock + record.quantity 
-          : material.stock - record.quantity;
+          ? currentStock + quantity 
+          : currentStock - quantity;
         
         await tx.update(materials)
           .set({ stock: newStock })
@@ -110,18 +143,4 @@ export class DatabaseStorage {
   }
 
   async createMilestone(milestone) {
-    const [newRecord] = await db.insert(milestones).values(milestone).returning();
-    return newRecord;
-  }
-
-  async getQcForms() {
-    return await db.select().from(qcForms).orderBy(desc(qcForms.date));
-  }
-
-  async createQcForm(form) {
-    const [newRecord] = await db.insert(qcForms).values(form).returning();
-    return newRecord;
-  }
-}
-
-export const storage = new DatabaseStorage();
+    const [newRecord] = await db.
