@@ -14,9 +14,10 @@ export default function Login() {
     }
   }, [user, setLocation]);
 
-  const handleLogin = () => {
-    window.location.href = "/api/auth/google";
-  };
+ const handleLogin = () => {
+  // This now hits the Google Auth route we just set up
+  window.location.href = "/api/login";
+};
 
   if (isLoading) return null;
 
