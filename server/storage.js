@@ -5,14 +5,13 @@ import {
 } from "../shared/schema";
 // FIXED: Added 'desc' to imports
 import { eq, desc } from "drizzle-orm"; 
-import { users } from "../shared/models/auth"; // Adjusted import path to be safe
+import { users } from "../shared/models/auth"; 
 
-export interface IAuthStorage {
-  getUser(id: string): Promise<any>;
-  upsertUser(user: any): Promise<any>;
-}
+// DELETED: export interface IAuthStorage { ... } (Not valid in JS)
 
-class AuthStorage implements IAuthStorage {
+class AuthStorage {
+  // DELETED: implements IAuthStorage (Not valid in JS)
+  
   async getUser(id) {
     // FIXED: Added 'id' as the second argument to eq()
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -45,7 +44,7 @@ export class DatabaseStorage {
   }
 
   async getUserByUsername(username) {
-    const [user] = await db.select().from(users).where(eq(users.email, username)); // changed to email since you use Google Auth
+    const [user] = await db.select().from(users).where(eq(users.email, username));
     return user;
   }
 
@@ -143,4 +142,18 @@ export class DatabaseStorage {
   }
 
   async createMilestone(milestone) {
-    const [newRecord] = await db.
+    const [newRecord] = await db.insert(milestones).values(milestone).returning();
+    return newRecord;
+  }
+
+  async getQcForms() {
+    return await db.select().from(qcForms).orderBy(desc(qcForms.date));
+  }
+
+  async createQcForm(form) {
+    const [newRecord] = await db.insert(qcForms).values(form).returning();
+    return newRecord;
+  }
+}
+
+export const storage = new DatabaseStorage();
