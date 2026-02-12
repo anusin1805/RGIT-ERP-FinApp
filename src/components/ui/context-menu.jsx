@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
@@ -136,7 +138,7 @@ ContextMenuSeparator.displayName = ContextMenuPrimitive.Separator.displayName
 const ContextMenuShortcut = ({
   className,
   ...props
-}: React.HTMLAttributes<HTMLSpanElement>) => {
+}) => {
   return (
     <span
       className={cn(
