@@ -1,56 +1,45 @@
-import { Switch, Route } from "wouter";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./lib/queryClient";
-import { Toaster } from "@/components/ui/toaster";
+import { Switch, Route, Redirect } from "wouter"; // Using wouter as per your project
+import { useAuth } from "@/hooks/use-auth";
+import { Toaster } from "@/components/ui/Toaster"; // Ensure Capital 'T'
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/auth/Login";
 import Dashboard from "@/pages/Dashboard";
+import { Loader2 } from "lucide-react";
 
-// --- Placeholder Pages (So links don't crash) ---
-// You can replace these with real components later
-const FinancialHub = () => (
-  <div className="p-8 md:pl-72 pt-20">
-    <h1 className="text-2xl font-bold">Financial Hub</h1>
-    <p className="text-gray-500">Coming soon...</p>
-  </div>
-);
+// 1. Create a ProtectedRoute Component
+function ProtectedRoute({ component: Component }) {
+  const { user, isLoading } = useAuth();
 
-const LaborForce = () => (
-  <div className="p-8 md:pl-72 pt-20">
-    <h1 className="text-2xl font-bold">Labor Force Management</h1>
-    <p className="text-gray-500">Coming soon...</p>
-  </div>
-);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-const Materials = () => (
-  <div className="p-8 md:pl-72 pt-20">
-    <h1 className="text-2xl font-bold">Materials Inventory</h1>
-    <p className="text-gray-500">Coming soon...</p>
-  </div>
-);
+  // If no user, KICK THEM OUT to the login page
+  if (!user) {
+    return <Redirect to="/auth" />;
+  }
 
-const QualityControl = () => (
-  <div className="p-8 md:pl-72 pt-20">
-    <h1 className="text-2xl font-bold">Quality Control</h1>
-    <p className="text-gray-500">Coming soon...</p>
-  </div>
-);
+  // Otherwise, let them in
+  return <Component />;
+}
 
-// --- Main App Component ---
 function Router() {
   return (
     <Switch>
-      {/* Auth Route */}
-      <Route path="/auth/login" component={Login} />
+      {/* 2. Public Route (Login) */}
+      <Route path="/auth" component={Login} />
+
+      {/* 3. Protected Route (Dashboard) */}
+      {/* If user visits '/', check if they are logged in first */}
+      <Route path="/">
+        <ProtectedRoute component={Dashboard} />
+      </Route>
       
-      {/* Main Routes */}
-      <Route path="/" component={Dashboard} />
-      <Route path="/finance" component={FinancialHub} />
-      <Route path="/labor" component={LaborForce} />
-      <Route path="/materials" component={Materials} />
-      <Route path="/quality" component={QualityControl} />
-      
-      {/* 404 Fallback */}
+      {/* Catch-all for 404s */}
       <Route component={NotFound} />
     </Switch>
   );
@@ -58,10 +47,10 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <Router />
       <Toaster />
-    </QueryClientProvider>
+    </>
   );
 }
 
