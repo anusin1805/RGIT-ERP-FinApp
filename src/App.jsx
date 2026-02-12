@@ -1,6 +1,6 @@
 import { Switch, Route, Redirect } from "wouter"; // Using wouter as per your project
 import { useAuth } from "@/hooks/use-auth";
-import { Toaster } from "@/components/ui/Toaster"; // Ensure Capital 'T'
+import { Toaster } from "@/components/ui/toaster"; // Ensure Capital 'T'
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/auth/Login";
 import Dashboard from "@/pages/Dashboard";
