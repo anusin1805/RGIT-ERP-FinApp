@@ -53,7 +53,7 @@ function App() {
       <TooltipProvider>
         
         {/* FIX 2: Render the Toaster component */}
-      //*</Toaster />*//
+        {/*</Toaster />*/}
 
         <Router />
       </TooltipProvider>
