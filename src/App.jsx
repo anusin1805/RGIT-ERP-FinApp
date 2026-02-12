@@ -5,7 +5,7 @@ import React from "react";
 // import { Toaster } from "@/components/ui/toaster"; // <-- DISABLED to prevent crash
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/auth/Login";
-import Dashboard from "@/pages/dashboard"; // Ensure this path is correct for your project
+import Dashboard from "@/pages/Dashboard"; // Ensure this path is correct for your project
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
