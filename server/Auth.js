@@ -16,7 +16,7 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
-// 2. Session Setup (RAM MODE - No Database Required)
+// 2. Session Setup (RAM MODE - HARDENED FOR RENDER)
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   
@@ -24,9 +24,13 @@ export function getSession() {
     secret: process.env.SESSION_SECRET || "default-dev-secret",
     resave: false,
     saveUninitialized: false,
+    proxy: true, // Important for Render Load Balancers
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // FIXED: Force secure to true because Render is always HTTPS
+      secure: true, 
+      // FIXED: Lax is best for login redirects
+      sameSite: "lax", 
       maxAge: sessionTtl,
     },
   });
@@ -39,7 +43,7 @@ function updateUserSession(user, tokens) {
   user.expires_at = user.claims?.exp;
 }
 
-// FIXED: Returns true immediately. Does NOT touch the database.
+// Memory-only user storage
 async function upsertUser(claims) {
   return true; 
 }
@@ -55,7 +59,6 @@ export async function setupAuth(app) {
   const config = await getOidcConfig();
 
   const verify = async (tokens, verified) => {
-    // Manually build the user object since we aren't using a DB
     const user = {
        id: tokens.claims().sub,
        email: tokens.claims().email,
@@ -65,6 +68,7 @@ export async function setupAuth(app) {
     };
     updateUserSession(user, tokens);
     await upsertUser(tokens.claims());
+    console.log("✅ Google Auth Success for:", user.email);
     verified(null, user);
   };
 
@@ -92,7 +96,6 @@ export async function setupAuth(app) {
 
   // --- Routes ---
   
-  // 1. Login
   app.get("/api/login", (req, res, next) => {
     ensureStrategy(req.hostname);
     passport.authenticate(`googleauth:${req.hostname}`, {
@@ -101,7 +104,6 @@ export async function setupAuth(app) {
     })(req, res, next);
   });
 
-  // 2. Callback
   app.get("/api/callback", (req, res, next) => {
     ensureStrategy(req.hostname);
     passport.authenticate(`googleauth:${req.hostname}`, {
@@ -110,7 +112,6 @@ export async function setupAuth(app) {
     })(req, res, next);
   });
 
-  // 3. Logout
   app.get("/api/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) { return next(err); }
@@ -118,11 +119,13 @@ export async function setupAuth(app) {
     });
   });
 
-  // 4. Get Current User (CRITICAL FOR FRONTEND)
+  // 4. Get Current User (With Debug Logs)
   app.get("/api/auth/user", (req, res) => {
     if (req.isAuthenticated()) {
+      console.log("👤 /api/auth/user called: Authenticated as", req.user.email);
       res.json(req.user);
     } else {
+      console.log("⚠️ /api/auth/user called: Not Authenticated (No Cookie Found)");
       res.status(401).json(null);
     }
   });
