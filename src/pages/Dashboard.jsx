@@ -1,5 +1,6 @@
-import { Sidebar } from "@/components/layout/Slidebar";
+import { Slidebar } from "@/components/layout/Slidebar";
 import { Header } from "@/components/layout/Header";
+import { Sidebar } from "@/components/ui/Sidebar";
 import { StatsCard } from "@/components/ui/StatsCard";
 import { useFinancialStats } from "@/hooks/use-financial";
 import { useMilestones } from "@/hooks/use-project";
