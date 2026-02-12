@@ -20,8 +20,8 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
-  const { data: stats } = useFinancialStats();
-  const { data: milestones } = useMilestones();
+  const { data } = useFinancialStats();
+  const { data } = useMilestones();
 
   // Mock data for charts
   const progressData = [
@@ -57,7 +57,7 @@ export default function Dashboard() {
               value="245"
               description="Daily Average"
               icon={Users}
-              trend={{ value: 12, isPositive: true }}
+              trend="+12%"
               className="border-l-4 border-l-green-500"
             />
             <StatsCard
