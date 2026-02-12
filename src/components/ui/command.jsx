@@ -1,6 +1,7 @@
+"use client"
+
 import * as React from "react"
-import { type DialogProps } from "@radix-ui/react-dialog"
-import { Command } from "cmdk"
+import { Command as CommandPrimitive } from "cmdk"
 import { Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -18,7 +19,7 @@ const Command = React.forwardRef(({ className, ...props }, ref) => (
 ))
 Command.displayName = CommandPrimitive.displayName
 
-const CommandDialog = ({ children, ...props }: DialogProps) => {
+const CommandDialog = ({ children, ...props }) => {
   return (
     <Dialog {...props}>
       <DialogContent className="overflow-hidden p-0 shadow-lg">
@@ -43,7 +44,6 @@ const CommandInput = React.forwardRef(({ className, ...props }, ref) => (
     />
   </div>
 ))
-
 CommandInput.displayName = CommandPrimitive.Input.displayName
 
 const CommandList = React.forwardRef(({ className, ...props }, ref) => (
@@ -53,7 +53,6 @@ const CommandList = React.forwardRef(({ className, ...props }, ref) => (
     {...props}
   />
 ))
-
 CommandList.displayName = CommandPrimitive.List.displayName
 
 const CommandEmpty = React.forwardRef((props, ref) => (
@@ -63,7 +62,6 @@ const CommandEmpty = React.forwardRef((props, ref) => (
     {...props}
   />
 ))
-
 CommandEmpty.displayName = CommandPrimitive.Empty.displayName
 
 const CommandGroup = React.forwardRef(({ className, ...props }, ref) => (
@@ -76,7 +74,6 @@ const CommandGroup = React.forwardRef(({ className, ...props }, ref) => (
     {...props}
   />
 ))
-
 CommandGroup.displayName = CommandPrimitive.Group.displayName
 
 const CommandSeparator = React.forwardRef(({ className, ...props }, ref) => (
@@ -98,13 +95,9 @@ const CommandItem = React.forwardRef(({ className, ...props }, ref) => (
     {...props}
   />
 ))
-
 CommandItem.displayName = CommandPrimitive.Item.displayName
 
-const CommandShortcut = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) => {
+const CommandShortcut = ({ className, ...props }) => {
   return (
     <span
       className={cn(
