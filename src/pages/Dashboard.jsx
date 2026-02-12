@@ -3,25 +3,28 @@ import { Header } from "@/components/layout/Header";
 import { StatsCard } from "@/components/ui/StatsCard";
 import { useFinancialStats } from "@/hooks/use-financial";
 import { useMilestones } from "@/hooks/use-project";
+// ADDED: Import 'cn' to fix the class merging usage later in the file
+import { cn } from "@/lib/utils"; 
 import { 
   IndianRupee, 
   Users, 
   AlertTriangle, 
-  TrendingUp,
   Activity,
   CalendarCheck
 } from "lucide-react";
 import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
-  const { data } = useFinancialStats();
-  const { data } = useMilestones();
+  // FIXED: Renamed 'data' to 'stats' so it doesn't conflict
+  const { data: stats } = useFinancialStats();
+  
+  // FIXED: Renamed 'data' to 'milestones' to match the variable used in JSX
+  const { data: milestones } = useMilestones();
 
   // Mock data for charts
   const progressData = [
