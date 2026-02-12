@@ -3,7 +3,6 @@ import { Strategy } from "openid-client/passport";
 import passport from "passport";
 import session from "express-session";
 import memoize from "memoizee";
-// DELETED: import { authStorage } from "./storage"; <-- This was causing the crash!
 
 // 1. Google OIDC Configuration
 const getOidcConfig = memoize(
@@ -40,9 +39,8 @@ function updateUserSession(user, tokens) {
   user.expires_at = user.claims?.exp;
 }
 
-// FIXED: This now does NOTHING instead of crashing the database
+// Memory-only user storage (No Database)
 async function upsertUser(claims) {
-  console.log("User logged in (Memory Only):", claims.email);
   return true; 
 }
 
@@ -58,7 +56,6 @@ export async function setupAuth(app) {
 
   const verify = async (tokens, verified) => {
     const user = {
-       // We manually create the user object since we aren't using the DB
        id: tokens.claims().sub,
        email: tokens.claims().email,
        firstName: tokens.claims().given_name,
@@ -93,6 +90,8 @@ export async function setupAuth(app) {
   passport.deserializeUser((user, cb) => cb(null, user));
 
   // --- Routes ---
+  
+  // 1. Login Route
   app.get("/api/login", (req, res, next) => {
     ensureStrategy(req.hostname);
     passport.authenticate(`googleauth:${req.hostname}`, {
@@ -101,6 +100,7 @@ export async function setupAuth(app) {
     })(req, res, next);
   });
 
+  // 2. Callback Route
   app.get("/api/callback", (req, res, next) => {
     ensureStrategy(req.hostname);
     passport.authenticate(`googleauth:${req.hostname}`, {
@@ -109,11 +109,21 @@ export async function setupAuth(app) {
     })(req, res, next);
   });
 
+  // 3. Logout Route
   app.get("/api/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) { return next(err); }
       res.redirect("/");
     });
+  });
+
+  // 4. Get Current User (THIS WAS MISSING!)
+  app.get("/api/auth/user", (req, res) => {
+    if (req.isAuthenticated()) {
+      res.json(req.user);
+    } else {
+      res.status(401).json(null);
+    }
   });
 }
 
