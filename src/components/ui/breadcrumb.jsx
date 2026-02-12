@@ -53,11 +53,7 @@ const BreadcrumbPage = React.forwardRef(({ className, ...props }, ref) => (
 ))
 BreadcrumbPage.displayName = "BreadcrumbPage"
 
-const BreadcrumbSeparator = ({
-  children,
-  className,
-  ...props
-}: React.ComponentProps<"li">) => (
+const BreadcrumbSeparator = ({ children, className, ...props }) => (
   <li
     role="presentation"
     aria-hidden="true"
@@ -69,10 +65,7 @@ const BreadcrumbSeparator = ({
 )
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator"
 
-const BreadcrumbEllipsis = ({
-  className,
-  ...props
-}: React.ComponentProps<"span">) => (
+const BreadcrumbEllipsis = ({ className, ...props }) => (
   <span
     role="presentation"
     aria-hidden="true"
