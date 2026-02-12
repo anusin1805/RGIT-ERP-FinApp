@@ -1,5 +1,4 @@
-// 1. CSS MUST BE THE FIRST IMPORT
-import "./index.css"; 
+import "./index.css"; // <--- THIS MUST BE HERE
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
