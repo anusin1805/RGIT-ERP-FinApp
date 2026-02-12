@@ -3,7 +3,7 @@ import { Strategy } from "openid-client/passport";
 import passport from "passport";
 import session from "express-session";
 import memoize from "memoizee";
-import { authStorage } from "./storage"; // Removed connect-pg-simple import
+// DELETED: import { authStorage } from "./storage"; <-- This was causing the crash!
 
 // 1. Google OIDC Configuration
 const getOidcConfig = memoize(
@@ -18,7 +18,6 @@ const getOidcConfig = memoize(
 );
 
 // 2. Session Setup (RAM MODE)
-// This uses the default MemoryStore, which does not require a database.
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   
@@ -38,18 +37,13 @@ export function getSession() {
 function updateUserSession(user, tokens) {
   user.claims = tokens.claims();
   user.access_token = tokens.access_token;
-  // Removed refresh_token to prevent errors since we don't have offline_access
   user.expires_at = user.claims?.exp;
 }
 
+// FIXED: This now does NOTHING instead of crashing the database
 async function upsertUser(claims) {
-  await authStorage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["given_name"],
-    lastName: claims["family_name"],
-    profileImageUrl: claims["picture"],
-  });
+  console.log("User logged in (Memory Only):", claims.email);
+  return true; 
 }
 
 // 4. Main Setup Function
@@ -63,7 +57,14 @@ export async function setupAuth(app) {
   const config = await getOidcConfig();
 
   const verify = async (tokens, verified) => {
-    const user = {};
+    const user = {
+       // We manually create the user object since we aren't using the DB
+       id: tokens.claims().sub,
+       email: tokens.claims().email,
+       firstName: tokens.claims().given_name,
+       lastName: tokens.claims().family_name,
+       picture: tokens.claims().picture
+    };
     updateUserSession(user, tokens);
     await upsertUser(tokens.claims());
     verified(null, user);
