@@ -1,73 +1,56 @@
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
-import React from "react";
-// import { Toaster } from "@/components/ui/toaster"; // <-- DISABLED to prevent crash
+import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/auth/Login";
-import Dashboard from "@/pages/Dashboard"; // Ensure this path is correct for your project
-import { useAuth } from "@/hooks/use-auth";
-import { Loader2 } from "lucide-react";
+import Dashboard from "@/pages/Dashboard";
 
-// 1. Simple Error Boundary to catch the crash
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="p-10 text-red-500">
-          <h1 className="text-2xl font-bold">Something crashed!</h1>
-          <pre className="mt-4 bg-gray-100 p-4 rounded text-sm text-black">
-            {this.state.error.toString()}
-          </pre>
-          <button 
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-            onClick={() => window.location.href = '/'}
-          >
-            Go to Home
-          </button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
+// --- Placeholder Pages (So links don't crash) ---
+// You can replace these with real components later
+const FinancialHub = () => (
+  <div className="p-8 md:pl-72 pt-20">
+    <h1 className="text-2xl font-bold">Financial Hub</h1>
+    <p className="text-gray-500">Coming soon...</p>
+  </div>
+);
 
-// 2. Protected Route Wrapper
-function ProtectedRoute({ component: Component }) {
-  const { user, isLoading } = useAuth();
+const LaborForce = () => (
+  <div className="p-8 md:pl-72 pt-20">
+    <h1 className="text-2xl font-bold">Labor Force Management</h1>
+    <p className="text-gray-500">Coming soon...</p>
+  </div>
+);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+const Materials = () => (
+  <div className="p-8 md:pl-72 pt-20">
+    <h1 className="text-2xl font-bold">Materials Inventory</h1>
+    <p className="text-gray-500">Coming soon...</p>
+  </div>
+);
 
-  if (!user) {
-    // If not logged in, redirect to login
-    window.location.href = "/auth/login";
-    return null;
-  }
+const QualityControl = () => (
+  <div className="p-8 md:pl-72 pt-20">
+    <h1 className="text-2xl font-bold">Quality Control</h1>
+    <p className="text-gray-500">Coming soon...</p>
+  </div>
+);
 
-  return <Component />;
-}
-
+// --- Main App Component ---
 function Router() {
   return (
     <Switch>
+      {/* Auth Route */}
       <Route path="/auth/login" component={Login} />
-      {/* Protect the home route */}
-      <Route path="/">
-        <ProtectedRoute component={Dashboard} />
-      </Route>
+      
+      {/* Main Routes */}
+      <Route path="/" component={Dashboard} />
+      <Route path="/finance" component={FinancialHub} />
+      <Route path="/labor" component={LaborForce} />
+      <Route path="/materials" component={Materials} />
+      <Route path="/quality" component={QualityControl} />
+      
+      {/* 404 Fallback */}
       <Route component={NotFound} />
     </Switch>
   );
@@ -76,10 +59,8 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <Router />
-        {/* <Toaster />  <-- KEEP THIS COMMENTED OUT */}
-      </ErrorBoundary>
+      <Router />
+      <Toaster />
     </QueryClientProvider>
   );
 }
