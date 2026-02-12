@@ -30,9 +30,12 @@ function Router() {
   return (
     <Switch>
       <Route path="/auth" component={Login} />
+      
+      {/* Simplify this route */}
       <Route path="/">
-        {() => <ProtectedRoute component={Dashboard} />}
+        <ProtectedRoute component={Dashboard} />
       </Route>
+
       <Route component={NotFound} />
     </Switch>
   );
