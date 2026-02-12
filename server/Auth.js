@@ -3,7 +3,7 @@ import { Strategy } from "openid-client/passport";
 import passport from "passport";
 import session from "express-session";
 import memoize from "memoizee";
-import { authStorage } from "./storage";
+import { authStorage } from "./storage"; // Removed connect-pg-simple import
 
 // 1. Google OIDC Configuration
 const getOidcConfig = memoize(
@@ -17,7 +17,8 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
-// 2. Session Setup (SAFE MODE: Uses MemoryStore)
+// 2. Session Setup (RAM MODE)
+// This uses the default MemoryStore, which does not require a database.
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   
@@ -37,6 +38,7 @@ export function getSession() {
 function updateUserSession(user, tokens) {
   user.claims = tokens.claims();
   user.access_token = tokens.access_token;
+  // Removed refresh_token to prevent errors since we don't have offline_access
   user.expires_at = user.claims?.exp;
 }
 
