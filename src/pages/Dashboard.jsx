@@ -1,10 +1,9 @@
-import { Slidebar } from "@/components/layout/Slidebar";
+import { Sidebar as AppSidebar } from "@/components/layout/Slidebar"; // FIX 1: Import the layout sidebar as AppSidebar
 import { Header } from "@/components/layout/Header";
-import { Sidebar } from "@/components/ui/Sidebar";
+// import { Sidebar } from "@/components/ui/Sidebar"; // REMOVE: You don't need the UI sidebar directly here if AppSidebar wraps it
 import { StatsCard } from "@/components/ui/StatsCard";
 import { useFinancialStats } from "@/hooks/use-financial";
 import { useMilestones } from "@/hooks/use-project";
-// ADDED: Import 'cn' to fix the class merging usage later in the file
 import { cn } from "@/lib/utils"; 
 import { 
   IndianRupee, 
@@ -21,10 +20,9 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
-  // FIXED: Renamed 'data' to 'stats' so it doesn't conflict
-  const { data: financial } = useFinancialStats();
+  // FIX 2: Rename 'data' to 'stats' here so it matches your JSX usage
+  const { data: stats } = useFinancialStats(); 
   
-  // FIXED: Renamed 'data' to 'milestones' to match the variable used in JSX
   const { data: milestones } = useMilestones();
 
   // Mock data for charts
@@ -37,9 +35,12 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950">
-      <Sidebar />
-      <div className="md:pl-64 pb-12">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 flex"> 
+      {/* FIX 3: Use AppSidebar (the one with the menu items) */}
+      <AppSidebar />
+      
+      {/* FIX 4: Adjust layout. Using 'flex' above helps sidebars behave better */}
+      <div className="flex-1 md:pl-64 pb-12">
         <Header title="Project Dashboard" />
         
         <main className="px-6 py-8">
@@ -51,6 +52,7 @@ export default function Dashboard() {
           >
             <StatsCard
               title="Total Advance"
+              // Usage matches the variable name 'stats' now
               value={`₹${((stats?.totalAdvance || 0) / 10000000).toFixed(2)} Cr`}
               description="Mobilization Advance"
               icon={IndianRupee}
@@ -64,6 +66,7 @@ export default function Dashboard() {
               trend="+12%"
               className="border-l-4 border-l-green-500"
             />
+            {/* ... rest of your cards ... */}
             <StatsCard
               title="Pending Issues"
               value="3"
@@ -81,6 +84,7 @@ export default function Dashboard() {
           </motion.div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
+             {/* ... Chart and Milestones section (Looks correct) ... */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
