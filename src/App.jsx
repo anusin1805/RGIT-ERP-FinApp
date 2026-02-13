@@ -13,6 +13,7 @@ import Finance from "@/pages/Finance";     // ✅ Added
 import Labor from "@/pages/Labor";         // ✅ Added
 import Materials from "@/pages/Materials"; // ✅ Added
 import QC from "@/pages/QC";               // ✅ Added
+import Settings from "@/pages/Settings"; // ✅ 1. IMPORT MUST BE HERE
 
 // 1. The Security Guard
 function ProtectedRoute({ component: Component }) {
