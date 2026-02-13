@@ -22,7 +22,7 @@ import { motion } from "framer-motion";
 
 export default function Dashboard() {
   // FIXED: Renamed 'data' to 'stats' so it doesn't conflict
-  const { data: stats } = useFinancialStats();
+  const { data: financial } = useFinancialStats();
   
   // FIXED: Renamed 'data' to 'milestones' to match the variable used in JSX
   const { data: milestones } = useMilestones();
