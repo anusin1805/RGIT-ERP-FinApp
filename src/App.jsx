@@ -61,7 +61,10 @@ function Router() {
         <ProtectedRoute component={QC} />
       </Route>
 
-      {/* Catch-all for 404s */}
+      <Route path="/settings">
+        <ProtectedRoute component={Settings} />
+      </Route>
+      
       <Route component={NotFound} />
     </Switch>
   );
