@@ -45,7 +45,9 @@ function updateUserSession(user, tokens) {
 
 // Memory-only user storage
 async function upsertUser(claims) {
-  return true; 
+  console.log(`Login attempt for: ${claims.email}`);
+  console.log("⚠️ SKIPPING DATABASE WRITE to prevent crash.");
+  return; // Simply return without doing anything 
 }
 
 // 4. Main Setup Function
