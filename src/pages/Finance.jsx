@@ -14,10 +14,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useFinancialRecords, useFinancialStats, useCreateFinancialRecord } from "@/hooks/use-financial";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertFinancialRecordSchema } from "@shared/schema";
+import * as z from "zod"; // ✅ Added Zod for local schema
 import { IndianRupee, PieChart as PieIcon, TrendingUp, Plus } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as ReTooltip } from "recharts";
 import { format } from "date-fns";
+
+// ✅ FIX 1: Define Schema Locally to prevent "undefined" error
+const insertFinancialRecordSchema = z.object({
+  type: z.enum(["advance", "ra_bill", "expense", "bg"]),
+  amount: z.coerce.number().min(1, "Amount is required"),
+  description: z.string().min(1, "Description is required"),
+  status: z.enum(["pending", "approved", "paid"]).default("pending"),
+  metadata: z.string().optional().default("{}"),
+});
 
 // For Recharts
 const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444'];
@@ -28,12 +37,15 @@ export default function Finance() {
   const createMutation = useCreateFinancialRecord();
   const [isOpen, setIsOpen] = useState(false);
 
-  const form = useForm<InsertFinancialRecord>({
+  // ✅ FIX 2: Removed TypeScript syntax <InsertFinancialRecord>
+  const form = useForm({
     resolver: zodResolver(insertFinancialRecordSchema),
     defaultValues: {
       type: "expense",
       status: "pending",
-      metadata: "{}"
+      metadata: "{}",
+      description: "",
+      amount: ""
     }
   });
 
