@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Slidebar";
 import { Header } from "@/components/layout/Header";
-import { useMaterials, useCreateMaterial, useCreateMaterialTransaction } from "@/hooks/use-materials";
+import { useMaterials, useCreateMaterial } from "@/hooks/use-materials"; // Removed unused transaction hook
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -12,12 +12,23 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertMaterialSchema} from "@shared/schema";
+import * as z from "zod"; // ✅ Added Zod for local schema
 import { Package, Truck, Leaf, AlertCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
+// ✅ FIX 1: Define Schema Locally
+const insertMaterialSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  category: z.string().min(1, "Category is required"),
+  unit: z.string().min(1, "Unit is required"),
+  stock: z.coerce.number().min(0),
+  minLevel: z.coerce.number().min(0).default(10),
+  grihaCompliant: z.boolean().default(false),
+});
+
 export default function Materials() {
-  const { data} = useMaterials();
+  // ✅ FIX 2: Rename 'data' to 'materials' so the map function works
+  const { data: materials } = useMaterials();
   const createMutation = useCreateMaterial();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -26,12 +37,22 @@ export default function Materials() {
     defaultValues: {
       stock: 0,
       minLevel: 10,
-      grihaCompliant: false
+      grihaCompliant: false,
+      name: "",
+      category: "",
+      unit: ""
     }
   });
 
   const onSubmit = (data) => {
-    createMutation.mutate(data, {
+    // Ensure numbers are actually numbers
+    const payload = {
+      ...data,
+      stock: Number(data.stock),
+      minLevel: Number(data.minLevel)
+    };
+
+    createMutation.mutate(payload, {
       onSuccess: () => {
         setIsOpen(false);
         form.reset();
@@ -66,7 +87,10 @@ export default function Materials() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Category</Label>
-                      <Select onValueChange={(val) => form.setValue("category", val)}>
+                      <Select 
+                        onValueChange={(val) => form.setValue("category", val)}
+                        defaultValue={form.getValues("category")}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
