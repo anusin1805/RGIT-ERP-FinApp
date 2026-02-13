@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/layout/Slidebar";
 import { Header } from "@/components/layout/Header";
 import { useQcForms, useCreateQcForm } from "@/hooks/use-project";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,12 +12,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertQcFormSchema} from "@shared/schema";
+import * as z from "zod"; // ✅ Added Zod for local schema
 import { ClipboardCheck, MapPin, Calendar, CheckCircle, XCircle, Clock } from "lucide-react";
 import { format } from "date-fns";
 
+// ✅ FIX 1: Define Schema Locally
+const insertQcFormSchema = z.object({
+  type: z.string().min(1, "Type is required"),
+  location: z.string().min(1, "Location is required"),
+  status: z.enum(["pending", "approved", "rejected"]).default("pending"),
+  remarks: z.string().optional(),
+  data: z.string().optional().default("{}"),
+});
+
 export default function QC() {
-  const { data } = useQcForms();
+  // ✅ FIX 2: Rename 'data' to 'qcForms' so the map function works
+  const { data: qcForms } = useQcForms();
   const createMutation = useCreateQcForm();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -25,7 +35,10 @@ export default function QC() {
     resolver: zodResolver(insertQcFormSchema),
     defaultValues: {
       status: "pending",
-      data: "{}"
+      data: "{}",
+      type: "",
+      location: "",
+      remarks: ""
     }
   });
 
@@ -61,7 +74,10 @@ export default function QC() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Inspection Type</Label>
-                      <Select onValueChange={(val) => form.setValue("type", val)}>
+                      <Select 
+                        onValueChange={(val) => form.setValue("type", val)}
+                        defaultValue={form.getValues("type")}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
@@ -124,7 +140,7 @@ export default function QC() {
                        <Clock className="h-6 w-6" />}
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 capitalize">{form.type.replace('_', ' ')} Inspection</h4>
+                      <h4 className="font-bold text-slate-900 capitalize">{form.type?.replace('_', ' ')} Inspection</h4>
                       <div className="flex gap-4 mt-1 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" /> {form.location}
