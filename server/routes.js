@@ -1,16 +1,44 @@
-import { createServer } from "http"; // <--- Import moved to top
-import { storage } from "./storage";
-import { api } from "../shared/routes";
+import { createServer } from "http";
+import session from "express-session";
+import { storage } from "./storage.js"; 
+import { api } from "../shared/routes.js";
 import { z } from "zod";
 
+// Helper authentication guard for protected API endpoints
+function requireAuth(req, res, next) {
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
+    return res.status(401).json({ message: "Not Authenticated" });
+  }
+  next();
+}
+
 export async function registerRoutes(app) {
-  // === Financial Routes ===
-  app.get(api.financial.list.path, async (req, res) => {
+  // === 1. Session & Express Security Setup ===
+  if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  }
+
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET || "fallback-secret-key",
+      resave: false,
+      saveUninitialized: false,
+      proxy: true, // Enables proxy support for cookie handling on Render
+      cookie: {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      },
+    })
+  );
+
+  // === 2. Financial Routes ===
+  app.get(api.financial.list.path, requireAuth, async (req, res) => {
     const records = await storage.getFinancialRecords(req.query.type);
     res.json(records);
   });
 
-  app.post(api.financial.create.path, async (req, res) => {
+  app.post(api.financial.create.path, requireAuth, async (req, res) => {
     try {
       const input = api.financial.create.input.parse(req.body);
       const record = await storage.createFinancialRecord(input);
@@ -23,18 +51,18 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.get(api.financial.stats.path, async (req, res) => {
+  app.get(api.financial.stats.path, requireAuth, async (req, res) => {
     const stats = await storage.getFinancialStats();
     res.json(stats);
   });
 
-  // === Labor Routes ===
-  app.get(api.labor.list.path, async (req, res) => {
+  // === 3. Labor Routes ===
+  app.get(api.labor.list.path, requireAuth, async (req, res) => {
     const records = await storage.getLaborRecords(req.query.date);
     res.json(records);
   });
 
-  app.post(api.labor.create.path, async (req, res) => {
+  app.post(api.labor.create.path, requireAuth, async (req, res) => {
     try {
       const input = api.labor.create.input.parse(req.body);
       const record = await storage.createLaborRecord(input);
@@ -45,12 +73,12 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.get(api.labor.complianceList.path, async (req, res) => {
+  app.get(api.labor.complianceList.path, requireAuth, async (req, res) => {
     const records = await storage.getLaborCompliance();
     res.json(records);
   });
 
-  app.post(api.labor.createCompliance.path, async (req, res) => {
+  app.post(api.labor.createCompliance.path, requireAuth, async (req, res) => {
     try {
       const input = api.labor.createCompliance.input.parse(req.body);
       const record = await storage.createLaborCompliance(input);
@@ -61,13 +89,13 @@ export async function registerRoutes(app) {
     }
   });
 
-  // === Materials Routes ===
-  app.get(api.materials.list.path, async (req, res) => {
+  // === 4. Materials Routes ===
+  app.get(api.materials.list.path, requireAuth, async (req, res) => {
     const records = await storage.getMaterials();
     res.json(records);
   });
 
-  app.post(api.materials.create.path, async (req, res) => {
+  app.post(api.materials.create.path, requireAuth, async (req, res) => {
     try {
       const input = api.materials.create.input.parse(req.body);
       const record = await storage.createMaterial(input);
@@ -78,7 +106,7 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.post(api.materials.transaction.path, async (req, res) => {
+  app.post(api.materials.transaction.path, requireAuth, async (req, res) => {
     try {
       const input = api.materials.transaction.input.parse(req.body);
       const record = await storage.createMaterialTransaction(input);
@@ -89,13 +117,13 @@ export async function registerRoutes(app) {
     }
   });
 
-  // === Project Routes ===
-  app.get(api.project.milestones.path, async (req, res) => {
+  // === 5. Project Routes ===
+  app.get(api.project.milestones.path, requireAuth, async (req, res) => {
     const records = await storage.getMilestones();
     res.json(records);
   });
 
-  app.post(api.project.createMilestone.path, async (req, res) => {
+  app.post(api.project.createMilestone.path, requireAuth, async (req, res) => {
     try {
       const input = api.project.createMilestone.input.parse(req.body);
       const record = await storage.createMilestone(input);
@@ -106,12 +134,12 @@ export async function registerRoutes(app) {
     }
   });
 
-  app.get(api.project.qcList.path, async (req, res) => {
+  app.get(api.project.qcList.path, requireAuth, async (req, res) => {
     const records = await storage.getQcForms();
     res.json(records);
   });
 
-  app.post(api.project.createQc.path, async (req, res) => {
+  app.post(api.project.createQc.path, requireAuth, async (req, res) => {
     try {
       const input = api.project.createQc.input.parse(req.body);
       const record = await storage.createQcForm(input);
